@@ -78,9 +78,9 @@ def resize_to_fit_screen(image, max_width=1280, max_height=720):
     return image, 1.0
 
 # Chemins des dossiers et fichiers
-images_folder = "c:\\Users\\timot\\Downloads\\Charlie-DB\\original-images"
-labels_folder = "c:\\Users\\timot\\Downloads\\Charlie-DB\\original-labels"
-data_yaml_path = "c:\\Users\\timot\\Downloads\\Charlie-DB\\data.yaml"
+images_folder = "./original-images"
+labels_folder = "./original-labels"
+data_yaml_path = "./data.yaml"
 
 # Charger les classes
 classes = load_classes(data_yaml_path)
