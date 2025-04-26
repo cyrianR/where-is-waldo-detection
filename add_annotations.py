@@ -1,12 +1,7 @@
 import cv2
 import os
 import yaml
-
-### USAGE
-# python add_annotations.py
-# This script allows you to annotate images with bounding boxes and save the annotations in YOLO format.
-# You can switch between classes using the number keys (0-9) and save the annotations by pressing 's'.
-# To exit the tool, press 'q'.
+import random
 
 # Charger les classes depuis data.yaml
 def load_classes(data_yaml_path):
@@ -31,6 +26,11 @@ def save_annotations(label_file, annotations):
     with open(label_file, 'w') as file:
         for annotation in annotations:
             file.write(f"{annotation[0]} {annotation[1]} {annotation[2]} {annotation[3]} {annotation[4]}\n")
+
+# Générer des couleurs uniques pour chaque classe
+def generate_colors(num_classes):
+    random.seed(2312)  # Pour des couleurs reproductibles
+    return [tuple(random.randint(0, 255) for _ in range(3)) for _ in range(num_classes)]
 
 # Variables globales
 drawing = False
@@ -85,6 +85,9 @@ data_yaml_path = "./data.yaml"
 # Charger les classes
 classes = load_classes(data_yaml_path)
 
+# Générer des couleurs pour chaque classe
+colors = generate_colors(len(classes))
+
 # Créer le dossier des labels s'il n'existe pas
 os.makedirs(labels_folder, exist_ok=True)
 
@@ -128,8 +131,9 @@ for image_file in os.listdir(images_folder):
                 y_min = int((y_center - bbox_height / 2) * image_height)
                 x_max = int((x_center + bbox_width / 2) * image_width)
                 y_max = int((y_center + bbox_height / 2) * image_height)
-                cv2.rectangle(temp_image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-                cv2.putText(temp_image, classes[annotation[0]], (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                color = colors[annotation[0]]  # Couleur de la classe
+                cv2.rectangle(temp_image, (x_min, y_min), (x_max, y_max), color, 2)
+                cv2.putText(temp_image, classes[annotation[0]], (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
             cv2.imshow("Annotation Tool", temp_image)
             key = cv2.waitKey(1) & 0xFF
