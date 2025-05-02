@@ -68,7 +68,7 @@ def draw_rectangle(event, x, y, flags, param):
         print(f"Annotation ajoutée : Classe {current_class}, x_center={x_center}, y_center={y_center}, width={bbox_width}, height={bbox_height}")
 
 # Ajuster la taille de l'image pour qu'elle rentre dans l'écran
-def resize_to_fit_screen(image, max_width=1280, max_height=720):
+def resize_to_fit_screen(image, max_width=1000, max_height=800):
     height, width = image.shape[:2]
     if width > max_width or height > max_height:
         scaling_factor = min(max_width / width, max_height / height)
@@ -154,9 +154,6 @@ for image_file in os.listdir(images_folder):
             # Quitter l'outil (touche 'q')
             elif key == ord('q'):
                 # Sauvegarder avant de quitter
-                all_annotations = existing_annotations + new_annotations
-                save_annotations(label_file, all_annotations)
-                print(f"Annotations sauvegardées dans {label_file}")
                 print("Quitter l'outil.")
                 exit()
 
