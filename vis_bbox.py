@@ -72,9 +72,9 @@ def main():
         # cv2.waitKey(0)
 
         cv2.imwrite(os.path.join(args.save_path,image), img)
-        print("saving image",image)
+        # print("saving image",image)
     
-    print("Done")
+    # print("Done")
 
 
 if __name__ == '__main__':

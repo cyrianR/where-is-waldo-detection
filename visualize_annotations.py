@@ -31,6 +31,11 @@ def main():
     if not os.path.exists(data_yaml_path):
         print(f"Error: {data_yaml_path} not found.")
         sys.exit(1)
+    
+    if os.path.exists(output_folder):
+        shutil.rmtree(output_folder)
+
+    os.makedirs(output_folder, exist_ok=True)
 
     # create input folder and copy files
     os.makedirs(input_folder, exist_ok=True)
