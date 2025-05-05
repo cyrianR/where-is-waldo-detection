@@ -1,7 +1,6 @@
 import os
 import shutil
-import PIL.Image
-import numpy as np
+import cv2
 
 ##############################################
 ## VARIABLES TO SET
@@ -20,8 +19,8 @@ image_folder = "./original-images"
 label_folder = "./original-labels"
 
 # output folders
-output_dir_images = "./imagettes"
-output_dir_labels = "./imagettes-labels"
+output_dir_images = "./imagettes-OCV"
+output_dir_labels = "./imagettes-labels-OCV"
 #################################################
 
 # clean imagettes if reset_imagettes set to True
@@ -39,9 +38,8 @@ nb_images = len(list_images)
 
 for i in range(nb_images):
     image_path = os.path.join(image_folder, list_images[i])
-    img = PIL.Image.open(image_path)
-    width, height = img.size
-    img = np.array(img)
+    img = cv2.imread(image_path)
+    height, width, _ = img.shape
 
     label_path = os.path.join(label_folder, list_labels[i])
     label = open(label_path, "r")
@@ -83,9 +81,8 @@ for i in range(nb_images):
             ratio_centre_y = 0.5
 
         imagette = img[y_top_left_corner:y_bottom_right_corner, x_top_left_corner:x_bottom_right_corner, :]
-        imagette_jpg = PIL.Image.fromarray(imagette)
         imagette_path = os.path.join(output_dir_images, list_images[i][0:-4]+"-"+str(l)+".jpg")
-        imagette_jpg.save(imagette_path)
+        cv2.imwrite(imagette_path, imagette)
 
         label_string = line[0] + " " + str(ratio_centre_x) + " " + str(ratio_centre_y) + " " + str(width_box/largeur_imagettes) + " " + str(height_box/hauteur_imagettes)
         imagette_label_path = os.path.join(output_dir_labels, list_images[i][0:-4]+"-"+str(l)+".txt")
