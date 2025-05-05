@@ -24,7 +24,7 @@ def main():
     
     class_names = {v: k for k, v in class_names.items()}
     
-    print(class_names)
+    # print(class_names)
 
     args = parser.parse_args()
 
