@@ -3,7 +3,7 @@ import shutil
 import cv2
 
 ##############################################
-## VARIABLES TO SET
+# VARIABLES TO SET
 
 # if set to True, erase imagettes before creating new ones
 # it should be set to False only when there is strictly new data in source folders
@@ -19,8 +19,8 @@ image_folder = "./original-images"
 label_folder = "./original-labels"
 
 # output folders
-output_dir_images = "./imagettes-OCV"
-output_dir_labels = "./imagettes-labels-OCV"
+output_dir_images = "./imagettes"
+output_dir_labels = "./imagettes-labels"
 #################################################
 
 # clean imagettes if reset_imagettes set to True
@@ -46,7 +46,7 @@ for i in range(nb_images):
     lines = label.readlines()
     label.close()
 
-    for l in range(len(lines)) :
+    for l in range(len(lines)):
         lines[l] = lines[l][0:-2]
         line = lines[l].split(" ")
         x_c = round(float(line[1])*width)
@@ -56,11 +56,11 @@ for i in range(nb_images):
 
         if x_c - largeur_imagettes//2 < 0:
             x_top_left_corner = 0
-            x_bottom_right_corner =  largeur_imagettes
+            x_bottom_right_corner = largeur_imagettes
             ratio_centre_x = x_c/largeur_imagettes
         elif x_c + largeur_imagettes//2 > width:
             x_top_left_corner = width-largeur_imagettes
-            x_bottom_right_corner =  width
+            x_bottom_right_corner = width
             ratio_centre_x = 1.0 - (width-x_c)/largeur_imagettes
         else:
             x_top_left_corner = x_c - largeur_imagettes//2
@@ -69,24 +69,27 @@ for i in range(nb_images):
 
         if y_c - hauteur_imagettes//2 < 0:
             y_top_left_corner = 0
-            y_bottom_right_corner =  hauteur_imagettes
+            y_bottom_right_corner = hauteur_imagettes
             ratio_centre_y = y_c/hauteur_imagettes
         elif y_c + largeur_imagettes//2 > height:
             y_top_left_corner = height-hauteur_imagettes
-            y_bottom_right_corner =  height
+            y_bottom_right_corner = height
             ratio_centre_y = 1.0 - (height-y_c)/hauteur_imagettes
         else:
             y_top_left_corner = y_c - hauteur_imagettes//2
             y_bottom_right_corner = y_c + hauteur_imagettes//2
             ratio_centre_y = 0.5
 
-        imagette = img[y_top_left_corner:y_bottom_right_corner, x_top_left_corner:x_bottom_right_corner, :]
-        imagette_path = os.path.join(output_dir_images, list_images[i][0:-4]+"-"+str(l)+".jpg")
+        imagette = img[y_top_left_corner:y_bottom_right_corner,
+                       x_top_left_corner:x_bottom_right_corner, :]
+        imagette_path = os.path.join(
+            output_dir_images, list_images[i][0:-4]+"-"+str(l)+".jpg")
         cv2.imwrite(imagette_path, imagette)
 
-        label_string = line[0] + " " + str(ratio_centre_x) + " " + str(ratio_centre_y) + " " + str(width_box/largeur_imagettes) + " " + str(height_box/hauteur_imagettes)
-        imagette_label_path = os.path.join(output_dir_labels, list_images[i][0:-4]+"-"+str(l)+".txt")
+        label_string = line[0] + " " + str(ratio_centre_x) + " " + str(ratio_centre_y) + " " + str(
+            width_box/largeur_imagettes) + " " + str(height_box/hauteur_imagettes)
+        imagette_label_path = os.path.join(
+            output_dir_labels, list_images[i][0:-4]+"-"+str(l)+".txt")
         file = open(imagette_label_path, "w")
         file.write(label_string)
         file.close()
-
