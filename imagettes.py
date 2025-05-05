@@ -1,6 +1,7 @@
 import os
 import shutil
 import cv2
+import sys
 
 ##############################################
 # VARIABLES TO SET
@@ -13,14 +14,13 @@ reset_imagettes = True
 largeur_imagettes = 300
 hauteur_imagettes = 300
 
-# source images folder
-image_folder = "./original-images"
-# source labels folder (yolo .txt format) from labelstudio
-label_folder = "./original-labels"
+# source images and labels folder
+images_folder = "./original-images"
+labels_folder = "./original-labels"
 
 # output folders
-output_dir_images = "./imagettes2"
-output_dir_labels = "./imagettes-labels2"
+output_dir_images = "./imagettes"
+output_dir_labels = "./imagettes-labels"
 #################################################
 
 # clean imagettes if reset_imagettes set to True
@@ -32,28 +32,36 @@ if reset_imagettes and os.path.exists(output_dir_labels):
 os.makedirs(output_dir_images, exist_ok=True)
 os.makedirs(output_dir_labels, exist_ok=True)
 
-list_images = os.listdir(image_folder)
-list_labels = os.listdir(label_folder)
+list_images = os.listdir(images_folder)
+list_labels = os.listdir(labels_folder)
 nb_images = len(list_images)
 
 for i in range(nb_images):
-    image_path = os.path.join(image_folder, list_images[i])
+    image_path = os.path.join(images_folder, list_images[i])
     img = cv2.imread(image_path)
     height, width, _ = img.shape
 
-    label_path = os.path.join(label_folder, list_labels[i])
+    label_path = os.path.join(labels_folder, list_labels[i])
     label = open(label_path, "r")
     lines = label.readlines()
     label.close()
 
     for l in range(len(lines)):
+        # Remove \n at the end of each line
         lines[l] = lines[l][0:-2]
+
+    for l in range(len(lines)):
         line = lines[l].split(" ")
         x_c = round(float(line[1])*width)
         y_c = round(float(line[2])*height)
         width_box = round(float(line[3])*width)
         height_box = round(float(line[4])*height)
 
+        if width_box > largeur_imagettes or height_box > hauteur_imagettes:
+            print("Error: box size is bigger than imagette size")
+            sys.exit(1)
+
+        # Defining the area for the imagette
         if x_c - largeur_imagettes//2 < 0:
             x_top_left_corner = 0
             x_bottom_right_corner = largeur_imagettes
@@ -80,6 +88,7 @@ for i in range(nb_images):
             y_bottom_right_corner = y_c + hauteur_imagettes//2
             ratio_centre_y = 0.5
 
+        # save imagette
         imagette = img[y_top_left_corner:y_bottom_right_corner,
                        x_top_left_corner:x_bottom_right_corner, :]
         imagette_path = os.path.join(

@@ -18,12 +18,12 @@ valid_perc = 10
 test_perc = 10
 
 # source images folder
-image_folder = "./original-images"
+image_folder = "./imagettes"
 # source labels folder (yolo .txt format) from labelstudio
-label_folder = "./original-labels"
+label_folder = "./imagettes-labels"
 
 # output folders
-output_dir_dataset = "./dataset"
+output_dir_dataset = "./dataset2"
 #################################################
 
 # clean datasets if reset_dataset set to True
@@ -48,8 +48,8 @@ for file_name in os.listdir(image_folder):
 jpeg_files = {os.path.splitext(f) for f in os.listdir(image_folder) if f.lower().endswith((".jpg"))}
 for jpeg_name, jpeg_ext in jpeg_files:
     parts = jpeg_name.split("-")
-    if len(parts) == 3:
-        book_num, picture_num, page_num = parts
+    if len(parts) == 3 or len(parts) == 4:
+        book_num, picture_num, page_num = parts[:3]
         if book_num == "7" and page_num != "0":
             uncomplete_images.append(jpeg_name)
         else:
@@ -144,6 +144,6 @@ print("Images in training dataset : " + str(num_train_images))
 print("Images in validation dataset : " + str(num_valid_images))
 print("Images in test dataset : " + str(num_test_images))
 print("")
-print("Total number of images in all dataset :" + str(num_train_images + num_valid_images + num_test_images))
+print("Total number of images in all dataset : " + str(num_train_images + num_valid_images + num_test_images))
 print("---------------------------------------------------")
 print("")
