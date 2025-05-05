@@ -32,17 +32,17 @@ def main():
         print(f"Error: {data_yaml_path} not found.")
         sys.exit(1)
 
-    # Step 1: Create input folder and copy files
+    # create input folder and copy files
     os.makedirs(input_folder, exist_ok=True)
     for file_name in os.listdir(images_folder):
         shutil.copy(os.path.join(images_folder, file_name), input_folder)
     for file_name in os.listdir(labels_folder):
         shutil.copy(os.path.join(labels_folder, file_name), input_folder)
 
-    # Step 2: Create classes.names file
+    # classes.names file
     create_classes_file(data_yaml_path, classes_file_path)
 
-    # Step 3: Call vis_bbox.py
+    # call vis_bbox.py
     vis_bbox_command = [
         "python", "vis_bbox.py",
         "--folder_path", input_folder,
@@ -51,11 +51,10 @@ def main():
     ]
     subprocess.run(vis_bbox_command)
 
-    # Step 4: Remove classes.names file
+    # clean what was created
     if os.path.exists(classes_file_path):
         os.remove(classes_file_path)
 
-    # Step 5: Delete input folder
     if os.path.exists(input_folder):
         shutil.rmtree(input_folder)
 
