@@ -19,8 +19,8 @@ image_folder = "./original-images"
 label_folder = "./original-labels"
 
 # output folders
-output_dir_images = "./imagettes"
-output_dir_labels = "./imagettes-labels"
+output_dir_images = "./imagettes2"
+output_dir_labels = "./imagettes-labels2"
 #################################################
 
 # clean imagettes if reset_imagettes set to True
@@ -86,10 +86,33 @@ for i in range(nb_images):
             output_dir_images, list_images[i][0:-4]+"-"+str(l)+".jpg")
         cv2.imwrite(imagette_path, imagette)
 
-        label_string = line[0] + " " + str(ratio_centre_x) + " " + str(ratio_centre_y) + " " + str(
-            width_box/largeur_imagettes) + " " + str(height_box/hauteur_imagettes)
+        # Check for overlapping labels
+        overlapping_labels = []
+        for other_line in lines:
+            other_line = other_line.split(" ")
+            other_x_c = round(float(other_line[1]) * width)
+            other_y_c = round(float(other_line[2]) * height)
+            other_width_box = round(float(other_line[3]) * width)
+            other_height_box = round(float(other_line[4]) * height)
+
+            # Check if the other label's box overlaps with the cropped region
+            if (
+                other_x_c + other_width_box // 2 > x_top_left_corner and
+                other_x_c - other_width_box // 2 < x_bottom_right_corner and
+                other_y_c + other_height_box // 2 > y_top_left_corner and
+                other_y_c - other_height_box // 2 < y_bottom_right_corner
+            ):
+                # Calculate the relative position and size of the overlapping box
+                relative_x_c = (other_x_c - x_top_left_corner) / \
+                    largeur_imagettes
+                relative_y_c = (other_y_c - y_top_left_corner) / \
+                    hauteur_imagettes
+                relative_width = other_width_box / largeur_imagettes
+                relative_height = other_height_box / hauteur_imagettes
+                overlapping_labels.append(
+                    f"{other_line[0]} {relative_x_c} {relative_y_c} {relative_width} {relative_height}")
+
         imagette_label_path = os.path.join(
             output_dir_labels, list_images[i][0:-4]+"-"+str(l)+".txt")
-        file = open(imagette_label_path, "w")
-        file.write(label_string)
-        file.close()
+        with open(imagette_label_path, "w") as file:
+            file.write("\n".join(overlapping_labels))
