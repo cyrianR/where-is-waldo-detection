@@ -1,20 +1,50 @@
 import os
+import shutil
 import PIL.Image
 import numpy as np
 
-list_images = os.listdir('original-images')
-list_labels = os.listdir('original-labels')
-nb_images = len(list_images)
+##############################################
+## VARIABLES TO SET
 
+# if set to True, erase imagettes before creating new ones
+# it should be set to False only when there is strictly new data in source folders
+reset_imagettes = True
+
+# imagettes size (in pixels)
 largeur_imagettes = 300
 hauteur_imagettes = 300
 
+# source images folder
+image_folder = "./original-images"
+# source labels folder (yolo .txt format) from labelstudio
+label_folder = "./original-labels"
+
+# output folders
+output_dir_images = "./imagettes"
+output_dir_labels = "./imagettes-labels"
+#################################################
+
+# clean imagettes if reset_imagettes set to True
+if reset_imagettes and os.path.exists(output_dir_images):
+    shutil.rmtree(output_dir_images)
+if reset_imagettes and os.path.exists(output_dir_labels):
+    shutil.rmtree(output_dir_labels)
+
+os.makedirs(output_dir_images, exist_ok=True)
+os.makedirs(output_dir_labels, exist_ok=True)
+
+list_images = os.listdir(image_folder)
+list_labels = os.listdir(label_folder)
+nb_images = len(list_images)
+
 for i in range(nb_images):
-    img = PIL.Image.open('original-images/'+list_images[i])
+    image_path = os.path.join(image_folder, list_images[i])
+    img = PIL.Image.open(image_path)
     width, height = img.size
     img = np.array(img)
 
-    label = open('original-labels/'+list_labels[i])
+    label_path = os.path.join(label_folder, list_labels[i])
+    label = open(label_path, "r")
     lines = label.readlines()
     label.close()
 
@@ -54,10 +84,12 @@ for i in range(nb_images):
 
         imagette = img[y_top_left_corner:y_bottom_right_corner, x_top_left_corner:x_bottom_right_corner, :]
         imagette_jpg = PIL.Image.fromarray(imagette)
-        imagette_jpg.save("imagettes/"+list_images[i][0:-4]+"-"+str(l)+".jpg")
+        imagette_path = os.path.join(output_dir_images, list_images[i][0:-4]+"-"+str(l)+".jpg")
+        imagette_jpg.save(imagette_path)
 
         label_string = line[0] + " " + str(ratio_centre_x) + " " + str(ratio_centre_y) + " " + str(width_box/largeur_imagettes) + " " + str(height_box/hauteur_imagettes)
-        file = open("imagettes-labels/"+list_images[i][0:-4]+"-"+str(l)+".txt", "w")
+        imagette_label_path = os.path.join(output_dir_labels, list_images[i][0:-4]+"-"+str(l)+".txt")
+        file = open(imagette_label_path, "w")
         file.write(label_string)
         file.close()
 
