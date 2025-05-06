@@ -32,8 +32,8 @@ if reset_imagettes and os.path.exists(output_dir_labels):
 os.makedirs(output_dir_images, exist_ok=True)
 os.makedirs(output_dir_labels, exist_ok=True)
 
-list_images = os.listdir(images_folder)
-list_labels = os.listdir(labels_folder)
+list_images = sorted(os.listdir(images_folder))
+list_labels = sorted(os.listdir(labels_folder))
 nb_images = len(list_images)
 
 for i in range(nb_images):
