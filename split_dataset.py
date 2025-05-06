@@ -23,7 +23,7 @@ image_folder = "./imagettes"
 label_folder = "./imagettes-labels"
 
 # output folders
-output_dir_dataset = "./dataset2"
+output_dir_dataset = "./dataset"
 #################################################
 
 # clean datasets if reset_dataset set to True
