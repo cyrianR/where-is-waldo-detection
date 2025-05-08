@@ -48,7 +48,7 @@ for i in range(nb_images):
 
     for l in range(len(lines)):
         # Remove \n at the end of each line
-        lines[l] = lines[l][0:-2]
+        lines[l] = lines[l][0:-1]
 
     for l in range(len(lines)):
         line = lines[l].split(" ")
