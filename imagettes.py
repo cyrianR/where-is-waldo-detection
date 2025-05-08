@@ -1,6 +1,5 @@
 import os
 import shutil
-from time import sleep
 import cv2
 import sys
 
