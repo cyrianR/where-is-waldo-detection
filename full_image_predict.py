@@ -5,8 +5,9 @@ import shutil
 
 def full_image_predict(model,image_path,box_size):
     cut_dir = "./image_cut"
-    shutil.rmtree(cut_dir)
-    os.makedirs(cut_dir)
+    if os.path.exists(cut_dir):
+        shutil.rmtree(cut_dir)
+    os.makedirs(cut_dir, exist_ok=True)
     img = cv2.imread(image_path)
     height, width, _ = img.shape
 
@@ -74,15 +75,4 @@ def full_image_predict(model,image_path,box_size):
         labels.append(f"{class_id} {(x1+x2)/(2*width)} {(y1+y2)/(2*height)} {(x2-x1)/width} {(y2-y1)/height}")
     
     with open("test_labels.txt","w") as file:
-            file.write("\n".join(labels))
-
-        
-
-
-
-
-
-    
-    
-
-        
+        file.write("\n".join(labels))
