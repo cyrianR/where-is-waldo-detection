@@ -16,7 +16,7 @@ hauteur_imagettes = 300
 
 # source images and labels folder
 images_folder = "./original-images"
-labels_folder = "./original-labels_2"
+labels_folder = "./original-labels"
 
 # output folders
 output_dir_images = "./imagettes"
