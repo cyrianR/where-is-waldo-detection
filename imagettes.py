@@ -2,6 +2,7 @@ import os
 import shutil
 import cv2
 import sys
+from time import sleep
 
 ##############################################
 # VARIABLES TO SET
@@ -15,12 +16,12 @@ largeur_imagettes = 300
 hauteur_imagettes = 300
 
 # source images and labels folder
-images_folder = "./original-images"
-labels_folder = "./original-labels"
+images_folder = "./dataset/train/images/"
+labels_folder = "./dataset/train/labels/"
 
 # output folders
-output_dir_images = "./imagettes"
-output_dir_labels = "./imagettes-labels"
+output_dir_images = "./dataset-imagettes/train/images/"
+output_dir_labels = "./dataset-imagettes/train/labels/"
 #################################################
 
 # clean imagettes if reset_imagettes set to True
