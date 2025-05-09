@@ -1,9 +1,12 @@
 import cv2
 import os
 import shutil
+import sys
+from ultralytics import YOLO
+import subprocess
 
 
-def full_image_predict(model,image_path,box_size):
+def full_image_predict(model,image_path,box_size,confidence_threshold=0.5):
     cut_dir = "./image_cut"
     if os.path.exists(cut_dir):
         shutil.rmtree(cut_dir)
@@ -33,7 +36,8 @@ def full_image_predict(model,image_path,box_size):
     all_boxes = []
     for imagette in predictions:
         boxes = imagette.boxes
-        nom_image = imagette.path[0:-4].split("/")[-1]
+        nom_image = os.path.basename(imagette.path)
+        nom_image, _ = os.path.splitext(nom_image)
         y_offset = int(nom_image.split("-")[0])
         x_offset = int(nom_image.split("-")[1])
         for box in boxes:
@@ -59,7 +63,7 @@ def full_image_predict(model,image_path,box_size):
                 if x_right >= x_left and y_bottom >= y_top:
                     ind_overlapping_boxes.append(i)
 
-            if len(ind_overlapping_boxes) == 0 and confidence > 0.8:
+            if len(ind_overlapping_boxes) == 0 and confidence > confidence_threshold:
                 all_boxes.append(((x1+x_offset,y1+y_offset,x2+x_offset,y2+y_offset),confidence,class_id))
 
             for j in range(len(ind_overlapping_boxes)):
@@ -73,6 +77,56 @@ def full_image_predict(model,image_path,box_size):
         coordinates,_,class_id = all_boxes[i]
         x1, y1, x2, y2 = coordinates
         labels.append(f"{class_id} {(x1+x2)/(2*width)} {(y1+y2)/(2*height)} {(x2-x1)/width} {(y2-y1)/height}")
-    
-    with open("test_labels.txt","w") as file:
+
+    if os.path.exists(cut_dir):
+        shutil.rmtree(cut_dir)
+
+    output_folder="full_image_output"
+    labels_folder="full_image_labels"
+    image_folder="full_image"
+
+    if os.path.exists(image_folder):
+        shutil.rmtree(image_folder)
+    os.makedirs(image_folder, exist_ok=True)
+    cv2.imwrite(os.path.join(image_folder,os.path.basename(image_path)), img)
+
+    if os.path.exists(labels_folder):
+        shutil.rmtree(labels_folder)
+    os.makedirs(labels_folder, exist_ok=True)
+
+    labels_full_path = os.path.join(labels_folder,"test_labels.txt")
+    with open(labels_full_path,"w") as file:
         file.write("\n".join(labels))
+
+    
+    command = [
+        "python", "visualize_annotations.py",
+        image_folder,
+        labels_folder,
+        output_folder
+    ]
+    subprocess.run(command)
+
+    shutil.rmtree(labels_folder)
+    shutil.rmtree(image_folder)
+
+def main():
+    if len(sys.argv) != 5:
+        print("Usage: python full_image_predict.py <model_path> <image_path> <box_size> <confidence_threshold>")
+        sys.exit(1)
+
+    model_path = sys.argv[1]
+    image_path = sys.argv[2]
+    box_size = int(sys.argv[3])
+    confidence_threshold = float(sys.argv[4])
+
+    # Load the model (assuming the model has a `load` method)
+    model = YOLO(model_path)
+
+    # Call the full_image_predict function
+    full_image_predict(model, image_path, box_size, confidence_threshold)
+
+    print("""Prediction completed. Check the "full_image_output" folder for results.""")
+
+if __name__ == "__main__":
+    main()
