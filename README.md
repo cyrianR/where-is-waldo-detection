@@ -31,6 +31,13 @@ And for imagettes it's :
 - 1 or 2 : halves of a full image
 - 3 : cropped part of a full image
 
+## Characters we've chosen to detect
+
+- Waldo
+- Odlaw
+- Wenda
+- Wizard Whitebeard
+
 ## Sources for the images
 
 The project includes datasets from various sources:
