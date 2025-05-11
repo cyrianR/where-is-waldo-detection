@@ -105,14 +105,14 @@ def full_image_predict(model, image_path, box_size, confidence_threshold=0.5):
     shutil.rmtree(image_folder)
 
 def main():
-    if len(sys.argv) != 5:
-        print("Usage: python full_image_predict.py <model_path> <image_path> <box_size> <confidence_threshold>")
+    if len(sys.argv) < 4 or len(sys.argv) > 5:
+        print("Usage: python full_image_predict.py <model_path> <image_path> <box_size> [<confidence_threshold>]")
         sys.exit(1)
 
     model_path = sys.argv[1]
     image_path = sys.argv[2]
     box_size = int(sys.argv[3])
-    confidence_threshold = float(sys.argv[4])
+    confidence_threshold = float(sys.argv[4]) if len(sys.argv) == 5 else 0.5
 
     # Load the model
     model = YOLO(model_path)
