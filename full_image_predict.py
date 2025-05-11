@@ -3,10 +3,10 @@ import os
 import shutil
 import sys
 from ultralytics import YOLO
-import subprocess
+from visualize_annotations import visualize_annotations
 
 
-def full_image_predict(model,image_path,box_size,confidence_threshold=0.5):
+def full_image_predict(model, image_path, box_size, confidence_threshold=0.5):
     cut_dir = "./image_cut"
     if os.path.exists(cut_dir):
         shutil.rmtree(cut_dir)
@@ -98,14 +98,8 @@ def full_image_predict(model,image_path,box_size,confidence_threshold=0.5):
     with open(labels_full_path,"w") as file:
         file.write("\n".join(labels))
 
-    
-    command = [
-        "python", "visualize_annotations.py",
-        image_folder,
-        labels_folder,
-        output_folder
-    ]
-    subprocess.run(command)
+    # Make the visualization
+    visualize_annotations(image_folder, labels_folder, output_folder)
 
     shutil.rmtree(labels_folder)
     shutil.rmtree(image_folder)
@@ -120,10 +114,10 @@ def main():
     box_size = int(sys.argv[3])
     confidence_threshold = float(sys.argv[4])
 
-    # Load the model (assuming the model has a `load` method)
+    # Load the model
     model = YOLO(model_path)
 
-    # Call the full_image_predict function
+    # Predict on the full image
     full_image_predict(model, image_path, box_size, confidence_threshold)
 
     print("""Prediction completed. Check the "full_image_output" folder for results.""")

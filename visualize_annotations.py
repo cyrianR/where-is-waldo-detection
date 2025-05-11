@@ -1,8 +1,8 @@
 import os
 import sys
 import yaml
-import subprocess
 import shutil
+import cv2
 
 # UTILISATION :
 # python visualize_annotations.py <images_folder> <labels_folder> <output_folder>
@@ -15,22 +15,56 @@ def create_classes_file(data_yaml_path, classes_file_path):
         for class_name in data.get('names', []):
             classes_file.write(f"{class_name}\n")
 
-def main():
-    if len(sys.argv) != 4:
-        print("Usage: python visualize_annotations.py <images_folder> <labels_folder> <output_folder>")
-        sys.exit(1)
+def visualize_bounding_boxes(folder_path, classes_file_path, save_path):
+    # Credit : https://github.com/jiteshm17/Visualize-Yolo-annotations
+    with open(classes_file_path) as class_names_file:
+        classes = [line.strip() for line in class_names_file.readlines()]
 
-    images_folder = sys.argv[1]
-    labels_folder = sys.argv[2]
-    output_folder = sys.argv[3]
+    class_names = {idx: name for idx, name in enumerate(classes)}
 
-    data_yaml_path = "data.yaml"
-    classes_file_path = "classes.names"
+    os.makedirs(save_path, exist_ok=True)
+
+    all_files = os.listdir(folder_path)
+    annotations, images = [], []
+
+    for file in all_files:
+        if file.endswith('.txt'):
+            annotations.append(file)
+        elif file.endswith(('.jpg', '.jpeg', '.png')):
+            images.append(file)
+
+    if len(images) > len(annotations):
+        raise ValueError("Some images don't have annotations.")
+    elif len(images) < len(annotations):
+        raise ValueError("There are more annotations than images.")
+
+    images.sort()
+    annotations.sort()
+
+    color = (255, 0, 0)
+    for image, annotation in zip(images, annotations):
+        img = cv2.imread(os.path.join(folder_path, image))
+        height, width, _ = img.shape
+        with open(os.path.join(folder_path, annotation)) as f:
+            content = [line.strip() for line in f.readlines()]
+        for annot in content:
+            annot = annot.split()
+            class_idx = int(annot[0])
+            x, y, w, h = map(float, annot[1:])
+            xmin = int((x * width) - (w * width) / 2.0)
+            ymin = int((y * height) - (h * height) / 2.0)
+            xmax = int((x * width) + (w * width) / 2.0)
+            ymax = int((y * height) + (h * height) / 2.0)
+            cv2.rectangle(img, (xmin, ymin), (xmax, ymax), color, 2)
+            cv2.putText(img, class_names[class_idx], (xmin, ymin - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        cv2.imwrite(os.path.join(save_path, image), img)
+
+def visualize_annotations(images_folder, labels_folder, output_folder, data_yaml_path="data.yaml"):
     input_folder = "input"
+    classes_file_path = "classes.names"
 
     if not os.path.exists(data_yaml_path):
-        print(f"Error: {data_yaml_path} not found.")
-        sys.exit(1)
+        raise FileNotFoundError(f"{data_yaml_path} not found.")
     
     if os.path.exists(output_folder):
         shutil.rmtree(output_folder)
@@ -47,14 +81,8 @@ def main():
     # classes.names file
     create_classes_file(data_yaml_path, classes_file_path)
 
-    # call vis_bbox.py
-    vis_bbox_command = [
-        "python", "vis_bbox.py",
-        "--folder_path", input_folder,
-        "--classes", classes_file_path,
-        "--save_path", output_folder
-    ]
-    subprocess.run(vis_bbox_command)
+    # call visualize_bounding_boxes
+    visualize_bounding_boxes(input_folder, classes_file_path, output_folder)
 
     # clean what was created
     if os.path.exists(classes_file_path):
@@ -62,6 +90,21 @@ def main():
 
     if os.path.exists(input_folder):
         shutil.rmtree(input_folder)
+
+def main():
+    if len(sys.argv) != 4:
+        print("Usage: python visualize_annotations.py <images_folder> <labels_folder> <output_folder>")
+        sys.exit(1)
+
+    images_folder = sys.argv[1]
+    labels_folder = sys.argv[2]
+    output_folder = sys.argv[3]
+
+    try:
+        visualize_annotations(images_folder, labels_folder, output_folder)
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
