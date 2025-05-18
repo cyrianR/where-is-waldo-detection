@@ -23,15 +23,26 @@ def generate_imagettes(
     os.makedirs(output_dir_labels, exist_ok=True)
 
     list_images = sorted(os.listdir(images_folder))
-    list_labels = sorted(os.listdir(labels_folder))
-    nb_images = len(list_images)
+
+    # Filter to only those images that have a corresponding label file
+    valid_image_label_pairs = []
+    for image_filename in list_images:
+        base_name, _ = os.path.splitext(image_filename)
+        label_filename = base_name + ".txt"
+        label_path = os.path.join(labels_folder, label_filename)
+        if os.path.isfile(label_path):
+            valid_image_label_pairs.append((image_filename, label_filename))
+
+    nb_images = len(valid_image_label_pairs)
 
     for i in range(nb_images):
-        image_path = os.path.join(images_folder, list_images[i])
+        image_filename, label_filename = valid_image_label_pairs[i]
+        image_path = os.path.join(images_folder, image_filename)
+        label_path = os.path.join(labels_folder, label_filename)
+
         img = cv2.imread(image_path)
         height, width, _ = img.shape
 
-        label_path = os.path.join(labels_folder, list_labels[i])
         label = open(label_path, "r")
         lines = label.readlines()
         label.close()
