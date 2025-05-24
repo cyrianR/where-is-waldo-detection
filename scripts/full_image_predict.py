@@ -32,7 +32,7 @@ def full_image_predict(model, image_path, box_size, confidence_threshold=0.5):
         y = int(y + box_size/2)
 
 
-    predictions = model.predict(source=cut_dir, save=True)
+    predictions = model.predict(source=cut_dir, save=False, imgsz= 320, conf=confidence_threshold, verbose=False)
     all_boxes = []
     for imagette in predictions:
         boxes = imagette.boxes
@@ -63,7 +63,7 @@ def full_image_predict(model, image_path, box_size, confidence_threshold=0.5):
                 if x_right >= x_left and y_bottom >= y_top:
                     ind_overlapping_boxes.append(i)
 
-            if len(ind_overlapping_boxes) == 0 and confidence > confidence_threshold:
+            if len(ind_overlapping_boxes) == 0:
                 all_boxes.append(((x1+x_offset,y1+y_offset,x2+x_offset,y2+y_offset),confidence,class_id))
 
             for j in range(len(ind_overlapping_boxes)):
@@ -99,18 +99,18 @@ def full_image_predict(model, image_path, box_size, confidence_threshold=0.5):
         file.write("\n".join(labels))
 
     # Make the visualization
-    visualize_annotations(image_folder, labels_folder, output_folder)
+    visualize_annotations(image_folder, labels_folder, output_folder, False)
 
     shutil.rmtree(labels_folder)
     shutil.rmtree(image_folder)
 
 def main():
     if len(sys.argv) < 4 or len(sys.argv) > 5:
-        print("Usage: python full_image_predict.py <model_path> <image_path> <box_size> [<confidence_threshold>]")
+        print("Usage: python full_image_predict.py <model_path> <image_folder> <box_size> [<confidence_threshold>]")
         sys.exit(1)
 
     model_path = sys.argv[1]
-    image_path = sys.argv[2]
+    image_folder = sys.argv[2]
     box_size = int(sys.argv[3])
     confidence_threshold = float(sys.argv[4]) if len(sys.argv) == 5 else 0.5
 
@@ -118,7 +118,9 @@ def main():
     model = YOLO(model_path)
 
     # Predict on the full image
-    full_image_predict(model, image_path, box_size, confidence_threshold)
+    for file_name in os.listdir(image_folder):
+        print(f"Predicting on {file_name}")
+        full_image_predict(model, os.path.join(image_folder, file_name), box_size, confidence_threshold)
 
     print("""Prediction completed. Check the "full_image_output" folder for results.""")
 

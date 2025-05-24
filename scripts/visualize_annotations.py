@@ -66,14 +66,14 @@ def visualize_bounding_boxes(folder_path, classes_file_path, save_path):
             cv2.putText(img, class_names[class_idx], (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.2, color, 4,cv2.LINE_AA)
         cv2.imwrite(os.path.join(save_path, image), img)
 
-def visualize_annotations(images_folder, labels_folder, output_folder, data_yaml_path="data.yaml"):
+def visualize_annotations(images_folder, labels_folder, output_folder, delete_output_folder=True, data_yaml_path="data.yaml"):
     input_folder = "input"
     classes_file_path = "classes.names"
 
     if not os.path.exists(data_yaml_path):
         raise FileNotFoundError(f"{data_yaml_path} not found.")
     
-    if os.path.exists(output_folder):
+    if os.path.exists(output_folder) and delete_output_folder:
         shutil.rmtree(output_folder)
 
     os.makedirs(output_folder, exist_ok=True)
