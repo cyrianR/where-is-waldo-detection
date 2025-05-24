@@ -16,12 +16,18 @@ def create_classes_file(data_yaml_path, classes_file_path):
             classes_file.write(f"{class_name}\n")
 
 def visualize_bounding_boxes(folder_path, classes_file_path, save_path):
-    # Credit : https://github.com/jiteshm17/Visualize-Yolo-annotations
     with open(classes_file_path) as class_names_file:
         classes = [line.strip() for line in class_names_file.readlines()]
 
     class_names = {idx: name for idx, name in enumerate(classes)}
 
+    # Associer une couleur unique à chaque classe
+    colors = {
+        0: (57, 255, 20),   # Vert 
+        1: (0, 0, 255),     # Rouge 
+        2: (0, 140, 255),   # Orange 
+        3: (255, 0, 255)    # Rose 
+    }
     os.makedirs(save_path, exist_ok=True)
 
     all_files = os.listdir(folder_path)
@@ -34,14 +40,13 @@ def visualize_bounding_boxes(folder_path, classes_file_path, save_path):
             images.append(file)
 
     if len(images) > len(annotations):
-        raise ValueError("Some images don't have annotations.")
+        raise ValueError("Certaines images n'ont pas d'annotations.")
     elif len(images) < len(annotations):
-        raise ValueError("There are more annotations than images.")
+        raise ValueError("Il y a plus d'annotations que d'images.")
 
     images.sort()
     annotations.sort()
 
-    color = (255, 0, 0)
     for image, annotation in zip(images, annotations):
         img = cv2.imread(os.path.join(folder_path, image))
         height, width, _ = img.shape
@@ -55,8 +60,9 @@ def visualize_bounding_boxes(folder_path, classes_file_path, save_path):
             ymin = int((y * height) - (h * height) / 2.0)
             xmax = int((x * width) + (w * width) / 2.0)
             ymax = int((y * height) + (h * height) / 2.0)
+            color = colors[class_idx]
             cv2.rectangle(img, (xmin, ymin), (xmax, ymax), color, 2)
-            cv2.putText(img, class_names[class_idx], (xmin, ymin - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            cv2.putText(img, class_names[class_idx], (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.2, color, 4,cv2.LINE_AA)
         cv2.imwrite(os.path.join(save_path, image), img)
 
 def visualize_annotations(images_folder, labels_folder, output_folder, data_yaml_path="data.yaml"):
