@@ -16,6 +16,7 @@ def create_classes_file(data_yaml_path, classes_file_path):
             classes_file.write(f"{class_name}\n")
 
 def visualize_bounding_boxes(folder_path, classes_file_path, save_path):
+    # Credit : https://github.com/jiteshm17/Visualize-Yolo-annotations
     with open(classes_file_path) as class_names_file:
         classes = [line.strip() for line in class_names_file.readlines()]
 
