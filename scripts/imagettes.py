@@ -1,5 +1,7 @@
 import os
+from re import L
 import shutil
+from zipfile import LargeZipFile
 import cv2
 import sys
 from time import sleep
@@ -186,16 +188,19 @@ def main():
     if len(sys.argv) == 1:
         # no arguments, default values
         generate_imagettes()
-    elif len(sys.argv) == 5:
+    elif len(sys.argv) == 8:
         # Paths provided, use them
         images_folder = sys.argv[1]
         labels_folder = sys.argv[2]
         output_dir_images = sys.argv[3]
         output_dir_labels = sys.argv[4]
-        generate_imagettes(images_folder, labels_folder, output_dir_images, output_dir_labels)
+        largeur_imagettes = sys.argv[5]
+        hauteur_imagettes = sys.argv[6]
+        reset_imagettes = sys.argv[7].lower() == 'true'
+        generate_imagettes(images_folder, labels_folder, output_dir_images, output_dir_labels, largeur_imagettes, hauteur_imagettes, reset_imagettes)
     else:
         # Invalid number of arguments
-        print("Usage: python imagettes.py [<images_folder> <labels_folder> <output_dir_images> <output_dir_labels>]")
+        print("Usage: python imagettes.py [<images_folder> <labels_folder> <output_dir_images> <output_dir_labels> <imagettes_width> <imagettes_height> <reset_imagettes>]")
         sys.exit(1)
 
 if __name__ == "__main__":
