@@ -2,7 +2,7 @@
 
 This project implements a YOLO-based detection model for "Where's Waldo?" books. It provides three datasets with different annotations and/or image sizes, the original images and labels used to create those datasets and some utility scripts.
 
-You can also find a full report of our work in french in the file Projet_Charlie.pdf.
+You can also find a full report of our work in french in the file [Projet_Charlie.pdf](Projet_Charlie.pdf).
 
 ## Project Structure
 
